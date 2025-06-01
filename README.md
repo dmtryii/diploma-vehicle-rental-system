@@ -16,6 +16,20 @@ This project is a full-featured CRUD application built with:
 
 ---
 
+## 🐋 Setup with Docker Compose
+
+### 1. .env
+```.env
+POSTGRES_USER=your-data
+POSTGRES_PASSWORD=your-data
+POSTGRES_DB=your-data
+```
+
+### 2. Run app
+```bash
+ docker-compose up --build
+```
+
 ## 📁 Project Structure
 
 ```
@@ -35,7 +49,7 @@ This project is a full-featured CRUD application built with:
 
 ---
 
-## 🖥️ Backend Setup (Spring Boot)
+## 🖥️ Backend Setup (Spring Boot) (local)
 
 ### 1. Configure PostgreSQL
 
@@ -68,7 +82,7 @@ API will be available at: `http://localhost:8888/api`
 
 ---
 
-## 🌐 Frontend Setup (React + Material UI)
+## 🌐 Frontend Setup (React + Material UI) (local)
 
 ### 1. Install dependencies
 
