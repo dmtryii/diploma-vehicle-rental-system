@@ -26,6 +26,11 @@ const ManagerPanel = () => {
       description: 'Browse, filter, and manage all ongoing and past car rental bookings.',
       route: '/rentals',
     },
+    {
+      title: 'Analytics',
+      description: 'View rental statistics, revenue, and car popularity analytics.',
+      route: '/analytics',
+    },
   ];
 
   return (

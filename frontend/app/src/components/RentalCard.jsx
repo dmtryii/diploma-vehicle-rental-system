@@ -1,4 +1,4 @@
-import { Paper, Box, Typography, Chip, Divider, Stack, FormControl, InputLabel, Select, MenuItem, CircularProgress } from '@mui/material';
+import { Paper, Box, Typography, Chip, Divider, Stack, FormControl, InputLabel, Select, MenuItem, CircularProgress, Button } from '@mui/material';
 
 const RentalCard = ({
   rental,
@@ -6,7 +6,9 @@ const RentalCard = ({
   onChangeStatus,
   changingId,
   showStatusSelector = false,
-  formatDateOnly
+  formatDateOnly,
+  showContacts,
+  onToggleContacts
 }) => (
   <Paper elevation={3} sx={{ p: 3 }}>
     <Stack spacing={2}>
@@ -75,6 +77,17 @@ const RentalCard = ({
             </Select>
           </FormControl>
           {changingId === rental.id && <CircularProgress size={24} />}
+        </Box>
+      )}
+      {showStatusSelector && (
+        <Box display="flex" justifyContent="flex-end">
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={onToggleContacts}
+          >
+            {showContacts ? "Hide User Contacts" : "Show User Contacts"}
+          </Button>
         </Box>
       )}
     </Stack>

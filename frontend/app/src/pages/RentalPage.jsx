@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Container, Box, Typography, FormControl, InputLabel, Select, MenuItem, CircularProgress, Grid, Stack
+  Container, Box, Typography, FormControl, InputLabel, Select, MenuItem, CircularProgress, Grid, Stack, Paper, Button, Collapse, Divider
 } from '@mui/material';
 import axios from 'axios';
 import { API_BASE_URL } from '../api/config';
@@ -14,6 +14,7 @@ const RentalPage = () => {
   const [selectedStatus, setSelectedStatus] = useState('');
   const [loading, setLoading] = useState(false);
   const [changingId, setChangingId] = useState(null);
+  const [openContacts, setOpenContacts] = useState({});
 
   useEffect(() => {
     const fetchStatuses = async () => {
@@ -91,6 +92,27 @@ const RentalPage = () => {
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' });
   };
 
+  // Відображення контактів користувача
+  const UserContacts = ({ user }) => (
+    <Paper variant="outlined" sx={{ p: 2, mb: 2, background: "#f9f9f9" }}>
+      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+        User Contacts
+      </Typography>
+      <Typography variant="body2"><strong>Username:</strong> {user.username}</Typography>
+      <Typography variant="body2"><strong>Email:</strong> {user.email}</Typography>
+      <Typography variant="body2"><strong>Name:</strong> {user.firstName} {user.lastName}</Typography>
+      <Typography variant="body2"><strong>Gender:</strong> {user.gender}</Typography>
+      <Typography variant="body2"><strong>Birthday:</strong> {user.birthday}</Typography>
+    </Paper>
+  );
+
+  const handleToggleContacts = (rentalId) => {
+    setOpenContacts((prev) => ({
+      ...prev,
+      [rentalId]: !prev[rentalId],
+    }));
+  };
+
   return (
     <Container maxWidth="md">
       <Box mt={5} mb={3} textAlign="center">
@@ -131,17 +153,31 @@ const RentalPage = () => {
         </Typography>
       ) : (
         <Grid container spacing={3}>
-          {rentals.map((rental) => (
-            <Grid item xs={12} key={rental.id}>
-              <RentalCard
-                rental={rental}
-                statuses={statuses}
-                onChangeStatus={handleChangeStatus}
-                changingId={changingId}
-                showStatusSelector={true}
-                formatDateOnly={formatDateOnly}
-              />
-            </Grid>
+          {rentals.map((rental, idx) => (
+            <React.Fragment key={rental.id}>
+              <Grid item xs={12}>
+                <Paper elevation={3} sx={{ p: 2, borderRadius: 3 }}>
+                  <RentalCard
+                    rental={rental}
+                    statuses={statuses}
+                    onChangeStatus={handleChangeStatus}
+                    changingId={changingId}
+                    showStatusSelector={true}
+                    formatDateOnly={formatDateOnly}
+                    showContacts={!!openContacts[rental.id]}
+                    onToggleContacts={() => handleToggleContacts(rental.id)}
+                  />
+                  <Collapse in={!!openContacts[rental.id]}>
+                    <UserContacts user={rental.user} />
+                  </Collapse>
+                </Paper>
+              </Grid>
+              {idx < rentals.length - 1 && (
+                <Grid item xs={12}>
+                  <Divider sx={{ my: 2 }} />
+                </Grid>
+              )}
+            </React.Fragment>
           ))}
         </Grid>
       )}

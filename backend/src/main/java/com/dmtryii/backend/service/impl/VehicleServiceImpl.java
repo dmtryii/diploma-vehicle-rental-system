@@ -19,6 +19,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -47,6 +48,7 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
+    @Transactional
     public Vehicle create(VehicleDto dto) {
         var vehicle = Vehicle.builder()
                 .name(dto.getName())
@@ -75,6 +77,7 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
+    @Transactional
     public List<VehicleMediaFile> addMedia(UUID id, VehicleMediaFileDto dto) {
         Vehicle vehicle = get(id);
 
@@ -98,6 +101,7 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
+    @Transactional
     public Vehicle update(UUID id, VehicleDto dto) {
         Vehicle vehicle = get(id);
 
@@ -154,15 +158,18 @@ public class VehicleServiceImpl implements VehicleService {
                                         UUID manufacturerId,
                                         UUID engineId) {
         return vehicleRepository.findAll().stream()
-                .filter(v -> name == null || v.getName().toLowerCase().contains(name.toLowerCase()))
+                .filter(v -> name == null ||
+                        v.getName().toLowerCase().contains(name.toLowerCase()) ||
+                        (v.getManufacturer() != null &&
+                                v.getManufacturer().getName().toLowerCase().contains(name.toLowerCase())))
                 .filter(v -> status == null || v.getStatus() == status)
                 .filter(v -> color == null || v.getColor() == color)
                 .filter(v -> bodyType == null || v.getBodyType() == bodyType)
                 .filter(v -> drivetrainType == null || v.getDrivetrainType() == drivetrainType)
                 .filter(v -> technicalCondition == null || v.getTechnicalCondition() == technicalCondition)
                 .filter(v -> transmissionType == null || v.getTransmissionType() == transmissionType)
-                .filter(v -> priceMin == null || v.getPrice() >= 0)
-                .filter(v -> priceMax == null || v.getPrice() <= 0)
+                .filter(v -> priceMin == null || v.getPrice() >= priceMin)
+                .filter(v -> priceMax == null || v.getPrice() <= priceMax)
                 .filter(v -> yearMin == null || v.getYears() >= yearMin)
                 .filter(v -> yearMax == null || v.getYears() <= yearMax)
                 .filter(v -> mileageMin == null || v.getMileage() >= mileageMin)

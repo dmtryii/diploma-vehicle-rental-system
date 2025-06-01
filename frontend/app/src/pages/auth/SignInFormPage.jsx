@@ -42,7 +42,12 @@ const SignInFormPage = () => {
           navigate('/');
         }
       } catch (error) {
-        console.error(error);
+        if (error.response && error.response.status === 403) {
+          setErrors({ general: 'Invalid username or password' });
+        } else {
+          setErrors({ general: 'An error occurred. Please try again.' });
+          console.error(error);
+        }
       }
     } else {
       setErrors(newErrors);
@@ -53,7 +58,7 @@ const SignInFormPage = () => {
     <Container maxWidth="sm">
       <Box mt={5}>
         <Typography variant="h4" component="h1" gutterBottom>
-          SignIn
+          Sign In
         </Typography>
         <form onSubmit={handleSubmit}>
           <TextField
@@ -77,20 +82,25 @@ const SignInFormPage = () => {
             error={!!errors.password}
             helperText={errors.password}
           />
-          <Button 
-            type="submit" 
-            variant="contained" 
-            color="primary" 
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
             fullWidth>
-            Signin
+            Sign In
           </Button>
-          <Button 
-            onClick={() => navigate('/signup')} 
+          <Button
+            onClick={() => navigate('/signup')}
             fullWidth>
             Don’t have an account? Sign Up
           </Button>
         </form>
       </Box>
+      {errors.general && (
+        <Typography color="error" align="center" sx={{ mt: 1 }}>
+          {errors.general}
+        </Typography>
+      )}
     </Container>
   );
 };

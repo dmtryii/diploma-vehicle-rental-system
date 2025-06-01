@@ -10,5 +10,7 @@ public interface UserService {
     User getCurrent();
     List<User> getByIds(List<UUID> ids);
     List<User> getAll();
+    void changeRole(UUID id, List<UUID> roleId);
     void saveAll(List<User> users);
+    void delete(UUID id);
 }

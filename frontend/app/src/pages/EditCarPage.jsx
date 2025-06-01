@@ -28,7 +28,6 @@ const EditCarPage = () => {
         maxSpeed: '',
         description: '',
         manufacturerId: '',
-        engine_id: '',
         engine: {
             name: '',
             fuelType: '',
@@ -45,7 +44,6 @@ const EditCarPage = () => {
     const [technicalConditions, setTechnicalConditions] = useState([]);
     const [transmissionTypes, setTransmissionTypes] = useState([]);
     const [fuelTypes, setFuelTypes] = useState([]);
-    const [engines, setEngines] = useState([]);
     const [statuses, setStatuses] = useState([]);
     const [files, setFiles] = useState([]);
     const [previewImages, setPreviewImages] = useState([]);
@@ -55,7 +53,7 @@ const EditCarPage = () => {
             try {
                 const [
                     manufacturersRes, statusesRes, colorsRes, bodyTypesRes,
-                    drivetrainRes, technicalRes, transmissionRes, enginesRes, fuelTypeRes
+                    drivetrainRes, technicalRes, transmissionRes, fuelTypeRes
                 ] = await Promise.all([
                     axios.get(`${API_BASE_URL}/manufacturers`),
                     axios.get(`${API_BASE_URL}/vehicles/statuses`),
@@ -64,7 +62,6 @@ const EditCarPage = () => {
                     axios.get(`${API_BASE_URL}/vehicles/drivetrain-types`),
                     axios.get(`${API_BASE_URL}/vehicles/technical-conditions`),
                     axios.get(`${API_BASE_URL}/vehicles/transmission-types`),
-                    axios.get(`${API_BASE_URL}/engines`),
                     axios.get(`${API_BASE_URL}/engines/fuel-types`)
                 ]);
 
@@ -75,7 +72,6 @@ const EditCarPage = () => {
                 setDrivetrainTypes(drivetrainRes.data.data);
                 setTechnicalConditions(technicalRes.data.data);
                 setTransmissionTypes(transmissionRes.data.data);
-                setEngines(enginesRes.data.data);
                 setFuelTypes(fuelTypeRes.data.data);
             } catch (err) {
                 console.error('Failed to fetch dropdown data:', err);
@@ -99,7 +95,7 @@ const EditCarPage = () => {
                     const base64Data = file.data;
                     const contentType = file.contentType || "image/jpeg";
                     const url = `data:${contentType};base64,${base64Data}`;
-                    return { url, id: file.id, isNew: false }; // isNew = false => фото з БД
+                    return { url, id: file.id, isNew: false };
                 });
                 setPreviewImages(base64Images);
             } catch (err) {
@@ -134,7 +130,7 @@ const EditCarPage = () => {
             file,
             isNew: true
         }));
-        setFiles(prev => [...prev, ...selectedFiles]); // Масив файлів
+        setFiles(prev => [...prev, ...selectedFiles]);
         setPreviewImages(prev => [...prev, ...previews]);
     };
 
@@ -148,17 +144,13 @@ const EditCarPage = () => {
         } else {
             setFiles(prev => prev.filter(f => URL.createObjectURL(f) !== image.url));
         }
-
         setPreviewImages(prev => prev.filter(img => img.url !== image.url));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const payload = { ...formData };
-            if (formData.engine_id) payload.engine = null;
-
-            await axios.put(`${API_BASE_URL}/vehicles/${id}`, payload);
+            await axios.put(`${API_BASE_URL}/vehicles/${id}`, formData);
 
             if (files.length > 0) {
                 for (const f of files) {
@@ -291,23 +283,6 @@ const EditCarPage = () => {
                     <Box my={3}>
                         <Typography variant="h6" gutterBottom>Engine</Typography>
                         <Grid container spacing={2}>
-                            <Grid item xs={12}>
-                                <TextField
-                                    select
-                                    label="Select Existing Engine"
-                                    name="engine_id"
-                                    value={formData.engine_id}
-                                    onChange={handleChange}
-                                    fullWidth
-                                >
-                                    {engines.map((e) => (
-                                        <MenuItem key={e.id} value={e.id}>
-                                            {`${e.name} - ${e.capacity}L (${e.fuelType}/${e.power}ph)`}
-                                        </MenuItem>
-                                    ))}
-                                </TextField>
-                            </Grid>
-
                             <Grid item xs={12} sm={6}>
                                 <TextField label="Engine Name" name="engine.name" value={formData.engine.name} onChange={handleChange} fullWidth />
                             </Grid>

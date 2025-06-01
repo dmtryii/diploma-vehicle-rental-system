@@ -34,4 +34,6 @@ public class RentalDto extends DefaultAuditDto {
 
     private List<AdditionalServiceDto> additionalServices;
 
+    private UserDto user;
+
 }

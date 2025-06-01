@@ -14,8 +14,8 @@ const SignupFormPage = () => {
 
   const [formData, setFormData] = useState({
     username: '',
-    first_name: '',
-    last_name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     gender: '',
@@ -31,8 +31,8 @@ const SignupFormPage = () => {
   const validate = () => {
     const newErrors = {};
     if (!formData.username) newErrors.username = 'Username is required';
-    if (!formData.first_name) newErrors.first_name = 'First name is required';
-    if (!formData.last_name) newErrors.last_name = 'Last name is required';
+    if (!formData.firstName) newErrors.firstName = 'First name is required';
+    if (!formData.lastName) newErrors.lastName = 'Last name is required';
     if (!formData.email) newErrors.email = 'Email is required';
     if (!formData.password) newErrors.password = 'Password is required';
     if (!formData.gender) newErrors.gender = 'Gender is required';
@@ -45,20 +45,21 @@ const SignupFormPage = () => {
     const newErrors = validate();
     if (Object.keys(newErrors).length === 0) {
       try {
-        const response = await axios.post(`${API_BASE_URL}/auth/singup`, formData);
+        const response = await axios.post(`${API_BASE_URL}/auth/register`, formData);
         const token = response.data['token'];
-
-        const userResponse = await axios.get(`${API_BASE_URL}users/identity`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const userData = userResponse.data.current_user;
+        const userData = response.data['user'];
 
         if (token) {
           login(token, userData);
-          navigate('/');
+          navigate('/signin');
         }
       } catch (error) {
-        console.error(error);
+        if (error.response && error.response.status === 400 && error.response.data && error.response.data.message) {
+          setErrors({ general: error.response.data.message });
+        } else {
+          setErrors({ general: 'An error occurred. Please try again.' });
+          console.error(error);
+        }
       }
     } else {
       setErrors(newErrors);
@@ -69,7 +70,7 @@ const SignupFormPage = () => {
     <Container maxWidth="sm">
       <Box mt={5}>
         <Typography variant="h4" component="h1" gutterBottom>
-          SignUp
+          Sign Up
         </Typography>
         <form onSubmit={handleSubmit}>
           <TextField
@@ -84,23 +85,23 @@ const SignupFormPage = () => {
           />
           <TextField
             label="First Name"
-            name="first_name"
-            value={formData.first_name}
+            name="firstName"
+            value={formData.firstName}
             onChange={handleChange}
             fullWidth
             margin="normal"
-            error={!!errors.first_name}
-            helperText={errors.first_name}
+            error={!!errors.firstName}
+            helperText={errors.firstName}
           />
           <TextField
             label="Last Name"
-            name="last_name"
-            value={formData.last_name}
+            name="lastName"
+            value={formData.lastName}
             onChange={handleChange}
             fullWidth
             margin="normal"
-            error={!!errors.last_name}
-            helperText={errors.last_name}
+            error={!!errors.lastName}
+            helperText={errors.lastName}
           />
           <TextField
             label="Email"
@@ -150,9 +151,14 @@ const SignupFormPage = () => {
             helperText={errors.birthday}
           />
           <Button type="submit" variant="contained" color="primary" fullWidth>
-            Signup
+            Sign Up
           </Button>
         </form>
+        {errors.general && (
+          <Typography color="error" align="center" sx={{ mt: 1 }}>
+            {errors.general}
+          </Typography>
+        )}
       </Box>
     </Container>
   );

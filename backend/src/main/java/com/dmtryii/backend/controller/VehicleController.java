@@ -10,6 +10,7 @@ import com.dmtryii.backend.entity.enums.EDrivetrainType;
 import com.dmtryii.backend.entity.enums.EVehicleStatus;
 import com.dmtryii.backend.entity.enums.ETechnicalCondition;
 import com.dmtryii.backend.entity.enums.ETransmissionType;
+import com.dmtryii.backend.service.UserService;
 import com.dmtryii.backend.service.VehicleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,7 @@ import static com.dmtryii.backend.payload.response.ResponseHandler.generateSucce
 @RestController
 public class VehicleController {
 
+    private final UserService userService;
     private final VehicleService vehicleService;
     private final ModelMapper modelMapper;
 
@@ -74,17 +76,26 @@ public class VehicleController {
             @RequestParam(required = false) UUID manufacturerId,
             @RequestParam(required = false) UUID engineId
     ) {
+        boolean isUser;
+        try {
+            var currentUserRoles = userService.getCurrent().getRoles();
+            isUser = currentUserRoles.stream()
+                    .anyMatch(role -> role.getName().equals("ROLE_USER"));
+        } catch (Exception ignored) {
+            isUser = true;
+        }
+
         var filteredVehicles = vehicleService.getAllFiltered(
                 name, status, color, bodyType, drivetrainType, technicalCondition, transmissionType,
                 priceMin, priceMax, yearMin, yearMax,
                 mileageMin, mileageMax, maxSpeedMin, maxSpeedMax,
                 manufacturerId, engineId
         );
-
+        final var isOnlyUser = isUser;
         return generateSuccessfulResponse(
                 filteredVehicles.stream()
                         .map(this::mapToDto)
-                        .filter(v -> !v.getStatus().equals(EVehicleStatus.HIDDEN))
+                        .filter(v -> !isOnlyUser || !v.getStatus().equals(EVehicleStatus.HIDDEN))
                         .sorted(Comparator
                                 .comparing((VehicleDto v) -> !v.getStatus().equals(EVehicleStatus.AVAILABLE))
                                 .thenComparing(VehicleDto::getName)

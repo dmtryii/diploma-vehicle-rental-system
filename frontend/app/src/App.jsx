@@ -15,6 +15,10 @@ import AdditionalServicesPage from './pages/AdditionalServicesPage';
 import DiscountsPage from './pages/DiscountsPage';
 import Footer from './components/Footer';
 import RentalPage from './pages/RentalPage';
+import AdminPanelPage from './pages/AdminPanelPage';
+import UsersPage from './pages/UsersPage';
+import AnalyticsPage from './pages/AnalyticsPage';
+import LogPage from './pages/LogPage';
 
 const theme = createTheme();
 
@@ -41,6 +45,13 @@ function App() {
                   <Route path="/additional-services" element={<AdditionalServicesPage />} />
                   <Route path="/discounts" element={<DiscountsPage />} />
                   <Route path="/rentals" element={<RentalPage />} />
+                  <Route path="/analytics" element={<AnalyticsPage />} />
+                </Route>
+
+                <Route element={<ProtectedRoute allowedRoles={['ROLE_ADMIN']} />}>
+                  <Route path="/admin" element={<AdminPanelPage />} />
+                  <Route path="/users" element={<UsersPage />} />
+                  <Route path="/logs" element={<LogPage />} />
                 </Route>
 
                 <Route path="*" element={<Navigate to="/" />} />

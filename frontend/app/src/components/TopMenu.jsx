@@ -40,7 +40,11 @@ const TopMenu = () => {
               Manager Panel
             </Button>
           )}
-          {/* Account menu */}
+          {authState.user && authState.user.roles.some(role => role.name === 'ROLE_ADMIN') && (
+            <Button color="inherit" onClick={() => navigate('/admin')}>
+              Admin Panel
+            </Button>
+          )}
           <Tooltip title={authState.user ? authState.user.username : 'Guest'}>
             <IconButton color="inherit" onClick={handleAccountMenu} sx={{ ml: 1 }}>
               <Avatar sx={{ width: 32, height: 32, bgcolor: 'secondary.main', fontWeight: 'bold' }}>

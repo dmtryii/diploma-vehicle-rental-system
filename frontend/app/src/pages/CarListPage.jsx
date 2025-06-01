@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Grid, Container, TextField, Box, Typography, IconButton, Collapse, CircularProgress } from '@mui/material';
+import { Grid, Container, TextField, Box, Typography, IconButton, Collapse, CircularProgress, Slider } from '@mui/material';
 import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import axios from 'axios';
@@ -24,8 +24,10 @@ const CarListPage = () => {
   const [selectedBodyType, setSelectedBodyType] = useState('');
   const [selectedManufacturer, setSelectedManufacturer] = useState('');
   const [selectedTransmissionType, setSelectedTransmissionType] = useState('');
-  const [priceMin, setPriceMin] = useState('');
-  const [priceMax, setPriceMax] = useState('');
+  // Price range state
+  const [priceRange, setPriceRange] = useState([1, 200]);
+  const [minPriceLimit, setMinPriceLimit] = useState(1);
+  const [maxPriceLimit, setMaxPriceLimit] = useState(200);
 
   const [statuses, setStatuses] = useState([]);
   const [colors, setColors] = useState([]);
@@ -38,6 +40,9 @@ const CarListPage = () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/vehicles`, {
         params: { ...filters },
+        headers: authState.token
+          ? { Authorization: `Bearer ${authState.token}` }
+          : undefined,
       });
       setCars(response.data.data);
     } catch (err) {
@@ -57,11 +62,31 @@ const CarListPage = () => {
           manufacturersRes,
           transmissionTypesRes,
         ] = await Promise.all([
-          axios.get(`${API_BASE_URL}/vehicles/statuses`),
-          axios.get(`${API_BASE_URL}/vehicles/colors`),
-          axios.get(`${API_BASE_URL}/vehicles/body-types`),
-          axios.get(`${API_BASE_URL}/manufacturers`),
-          axios.get(`${API_BASE_URL}/vehicles/transmission-types`),
+          axios.get(`${API_BASE_URL}/vehicles/statuses`, {
+            headers: authState.token
+              ? { Authorization: `Bearer ${authState.token}` }
+              : undefined,
+          }),
+          axios.get(`${API_BASE_URL}/vehicles/colors`, {
+            headers: authState.token
+              ? { Authorization: `Bearer ${authState.token}` }
+              : undefined,
+          }),
+          axios.get(`${API_BASE_URL}/vehicles/body-types`, {
+            headers: authState.token
+              ? { Authorization: `Bearer ${authState.token}` }
+              : undefined,
+          }),
+          axios.get(`${API_BASE_URL}/manufacturers`, {
+            headers: authState.token
+              ? { Authorization: `Bearer ${authState.token}` }
+              : undefined,
+          }),
+          axios.get(`${API_BASE_URL}/vehicles/transmission-types`, {
+            headers: authState.token
+              ? { Authorization: `Bearer ${authState.token}` }
+              : undefined,
+          }),
         ]);
 
         setStatuses(statusesRes.data.data);
@@ -75,7 +100,7 @@ const CarListPage = () => {
     };
 
     fetchAttributes();
-  }, []);
+  }, [authState.token]);
 
   useEffect(() => {
     const debouncedFetch = debounce(() => {
@@ -86,8 +111,8 @@ const CarListPage = () => {
         bodyType: selectedBodyType,
         manufacturer: selectedManufacturer,
         transmissionType: selectedTransmissionType,
-        priceMin: priceMin || undefined,
-        priceMax: priceMax || undefined,
+        priceMin: priceRange[0] || undefined,
+        priceMax: priceRange[1] || undefined,
       });
     }, 500);
 
@@ -101,15 +126,19 @@ const CarListPage = () => {
     selectedBodyType,
     selectedManufacturer,
     selectedTransmissionType,
-    priceMin,
-    priceMax,
+    priceRange,
+    authState.token,
   ]);
 
   const handleDelete = async (carId) => {
     const confirmed = window.confirm("Are you sure you want to delete this car?");
     if (confirmed) {
       try {
-        await axios.delete(`${API_BASE_URL}/vehicles/${carId}`);
+        await axios.delete(`${API_BASE_URL}/vehicles/${carId}`, {
+          headers: authState.token
+            ? { Authorization: `Bearer ${authState.token}` }
+            : undefined,
+        });
         setCars(cars.filter((car) => car.id !== carId));
       } catch (err) {
         console.error('Failed to delete car:', err);
@@ -154,7 +183,7 @@ const CarListPage = () => {
           minHeight: 220,
           background: 'linear-gradient(90deg, #1976d2 60%, #fff 100%)',
           borderRadius: 4,
-          mb: 1.5, // Зменшено margin-bottom
+          mb: 1.5,
           display: 'flex',
           alignItems: 'center',
           overflow: 'hidden',
@@ -281,25 +310,21 @@ const CarListPage = () => {
               ))}
             </Select>
           </FormControl>
-
-          <Box display="flex" gap={2} mt={2}>
-            <TextField
-              label="Min Price"
-              type="number"
-              value={priceMin}
-              onChange={(e) => setPriceMin(e.target.value)}
-              variant="outlined"
-              sx={{ minWidth: 100 }}
-            />
-            <TextField
-              label="Max Price"
-              type="number"
-              value={priceMax}
-              onChange={(e) => setPriceMax(e.target.value)}
-              variant="outlined"
-              sx={{ minWidth: 100 }}
-            />
-          </Box>
+        </Box>
+        <Box sx={{ minWidth: 250, maxWidth: 350, flex: 1 }}>
+          <Typography gutterBottom>Price Range</Typography>
+          <Slider
+            value={priceRange}
+            min={minPriceLimit}
+            max={maxPriceLimit}
+            step={1}
+            onChange={(_, newValue) => setPriceRange(newValue)}
+            valueLabelDisplay="auto"
+            marks={[
+              { value: minPriceLimit, label: `$${minPriceLimit}` },
+              { value: maxPriceLimit, label: `$${maxPriceLimit}` },
+            ]}
+          />
         </Box>
       </Collapse>
 

@@ -25,7 +25,6 @@ const AddCarPage = () => {
         maxSpeed: '',
         description: '',
         manufacturerId: '',
-        engine_id: '',
         engine: {
             name: '',
             fuelType: '',
@@ -42,7 +41,6 @@ const AddCarPage = () => {
     const [technicalConditions, setTechnicalConditions] = useState([]);
     const [transmissionTypes, setTransmissionTypes] = useState([]);
     const [fuelTypes, setFuelTypes] = useState([]);
-    const [engines, setEngines] = useState([]);
     const [statuses, setStatuses] = useState([]);
     const [files, setFiles] = useState([]);
     const [previewImages, setPreviewImages] = useState([]);
@@ -52,7 +50,7 @@ const AddCarPage = () => {
             try {
                 const [
                     manufacturersRes, statusesRes, colorsRes, bodyTypesRes,
-                    drivetrainRes, technicalRes, transmissionRes, enginesRes, fuelTypeRes
+                    drivetrainRes, technicalRes, transmissionRes, fuelTypeRes
                 ] = await Promise.all([
                     axios.get(`${API_BASE_URL}/manufacturers`),
                     axios.get(`${API_BASE_URL}/vehicles/statuses`),
@@ -61,7 +59,6 @@ const AddCarPage = () => {
                     axios.get(`${API_BASE_URL}/vehicles/drivetrain-types`),
                     axios.get(`${API_BASE_URL}/vehicles/technical-conditions`),
                     axios.get(`${API_BASE_URL}/vehicles/transmission-types`),
-                    axios.get(`${API_BASE_URL}/engines`),
                     axios.get(`${API_BASE_URL}/engines/fuel-types`)
                 ]);
 
@@ -72,7 +69,6 @@ const AddCarPage = () => {
                 setDrivetrainTypes(drivetrainRes.data.data);
                 setTechnicalConditions(technicalRes.data.data);
                 setTransmissionTypes(transmissionRes.data.data);
-                setEngines(enginesRes.data.data);
                 setFuelTypes(fuelTypeRes.data.data);
             } catch (err) {
                 console.error('Failed to fetch dropdown data:', err);
@@ -112,9 +108,6 @@ const AddCarPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            if (formData.engine_id !== null) {
-                formData.engine = null;
-            }
             const createResponse = await axios.post(`${API_BASE_URL}/vehicles`, formData);
             const vehicleId = createResponse.data.data.id;
 
@@ -239,23 +232,6 @@ const AddCarPage = () => {
                     <Box my={3}>
                         <Typography variant="h6" gutterBottom>Engine</Typography>
                         <Grid container spacing={2}>
-                            <Grid item xs={12}>
-                                <TextField
-                                    select
-                                    label="Select Existing Engine"
-                                    name="engine_id"
-                                    value={formData.engine_id}
-                                    onChange={handleChange}
-                                    fullWidth
-                                >
-                                    {engines.map((e) => (
-                                        <MenuItem key={e.id} value={e.id}>
-                                            {`${e.name} - ${e.capacity}L (${e.fuelType}/${e.power}ph)`}
-                                        </MenuItem>
-                                    ))}
-                                </TextField>
-                            </Grid>
-
                             <Grid item xs={12} sm={6}>
                                 <TextField label="Engine Name" name="engine.name" value={formData.engine.name} onChange={handleChange} fullWidth />
                             </Grid>

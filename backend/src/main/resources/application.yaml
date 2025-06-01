@@ -26,5 +26,25 @@ spring:
       max-file-size: 50MB
       max-request-size: 60MB
 
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+  info:
+    title: Product Catalog API
+    description: API documentation for the Product Catalog service
+    version: 1.0.0
+
+logging:
+  level:
+    org:
+      springframework:
+        web:
+          DEBUG
+      apache:
+        catalina:
+          DEBUG
+
 rental:
   max-discount-percent: 80
