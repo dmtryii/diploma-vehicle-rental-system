@@ -1,10 +1,11 @@
 server:
   port: 8888
+
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/vehicle-rental-db
-    username: postgres
-    password: q11q
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -14,7 +15,7 @@ spring:
     init:
       mode: always
   flyway:
-    enabled: true
+    enabled: false
     locations: classpath:db/migration
 
   security:
