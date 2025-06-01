@@ -20,9 +20,9 @@ This project is a full-featured CRUD application built with:
 
 ### 1. .env
 ```.env
-POSTGRES_USER=your-data
-POSTGRES_PASSWORD=your-data
-POSTGRES_DB=your-data
+POSTGRES_USER=your-data (postgres)
+POSTGRES_PASSWORD=your-data (q11q)
+POSTGRES_DB=your-data (vehicle-rental-db)
 ```
 
 ### 2. Run app
